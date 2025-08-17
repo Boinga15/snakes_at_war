@@ -12,4 +12,8 @@ export class MainGameLevel extends BaseLevel {
         this.actors.push(new Food(this.overseer));
         this.actors.push(new Snake(this.overseer));
     }
+
+    causeGameOver(): void {
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAAA")
+    }
 }

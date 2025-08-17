@@ -23,8 +23,6 @@ export class Food extends Actor {
             return;
         }
 
-        console.log(snakeRef.parts[0].x)
-
         if (snakeRef.parts[0].x == this.x && snakeRef.parts[0].y == this.y) {
             this.x = Math.floor(Math.random() * 49) * 20;
             this.y = Math.floor(Math.random() * 49) * 20;

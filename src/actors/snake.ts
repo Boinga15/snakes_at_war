@@ -1,9 +1,12 @@
 import { Graphics } from "pixi.js";
 import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
+import { MainGameLevel } from "../levels/mainGame";
 
 export class Snake extends Actor {
     direction: string
+    heldDirection: string
+
     parts: SnakePart[]
     nextUpdate: number
     sizeAdjustment: number = 0
@@ -14,6 +17,7 @@ export class Snake extends Actor {
         super(overseer);
 
         this.direction = "RIGHT";
+        this.heldDirection = "RIGHT";
         this.parts = [new SnakePart(overseer, true, 480, 480)];
 
         this.nextUpdate = this.snakeMoveTicker;
@@ -45,7 +49,7 @@ export class Snake extends Actor {
                 }
 
                 if (doChange) {
-                    this.direction = keyInput.direction
+                    this.heldDirection = keyInput.direction
                 }
             }
         }
@@ -55,6 +59,8 @@ export class Snake extends Actor {
         if (this.nextUpdate > 0) {
             return;
         }
+
+        this.direction = this.heldDirection;
 
         // All code past this point is only handled when snake moves.
         this.nextUpdate += this.snakeMoveTicker;
@@ -102,6 +108,16 @@ export class Snake extends Actor {
             this.sizeAdjustment -= 1;
 
             this.parts.push(new SnakePart(this.overseer, false, nextLocation[0], nextLocation[1]));
+        }
+
+        // Check for game overs.
+        for (const part of this.parts) {
+            if (part == this.parts[0]) {
+                continue;
+            } else if (part.x == this.parts[0].x && part.y == this.parts[0].y) {
+                const levelRef = this.overseer.level as MainGameLevel
+                levelRef.causeGameOver();
+            }
         }
     }
 }
