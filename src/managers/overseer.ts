@@ -2,11 +2,14 @@
 import { Application, Graphics } from "pixi.js";
 import { BaseLevel } from "../levels/baseLevel";
 import { MainGameLevel } from "../levels/mainGame";
+import { Actor } from "../actors/actor";
 
 export class Overseer {
     app: Application
     level: BaseLevel
     boundingBox: Graphics;
+
+    keys: Record<string, boolean> = {};
 
     readonly GAME_WIDTH = 1000;
     readonly GAME_HEIGHT = 1000;
@@ -16,7 +19,6 @@ export class Overseer {
         this.app = new Application();
         this.boundingBox = new Graphics().rect(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT).fill("#383838ff");
         this.app.stage.addChild(this.boundingBox);
-
         this.level = new MainGameLevel(this);
     }
 
@@ -29,6 +31,23 @@ export class Overseer {
             // Add resize listener
             window.addEventListener("resize", () => this.resize());
             this.resize();
+
+            // Add key listeners.
+            window.addEventListener("keydown", (e) => {
+                this.keys[e.code] = true;
+            });
+
+            window.addEventListener("keyup", (e) => {
+                this.keys[e.code] = false;
+            });
+
+            // Prevent arrow keys from scrolling the page.
+            window.addEventListener("keydown", (e) => {
+                if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
+                    e.preventDefault();
+                }
+            });
+
 
             this.app.ticker.add((time) => {
                 this.level.update(time.deltaMS / 1000);
@@ -53,5 +72,20 @@ export class Overseer {
         // Center the stage
         this.app.stage.x = (windowWidth - this.GAME_WIDTH * scale) / 2;
         this.app.stage.y = (windowHeight - this.GAME_HEIGHT * scale) / 2;
+    }
+
+    // Helper functions.
+    getActorsOfClass(targetClass: typeof Actor): Actor[] {
+        return this.level.actors.filter((actor) => (actor instanceof targetClass));
+    }
+
+    getActorOfClass(targetClass: typeof Actor): Actor | undefined {
+        for (const actor of this.level.actors) {
+            if (actor instanceof targetClass) {
+                return actor;
+            }
+        }
+
+        return undefined;
     }
 }
