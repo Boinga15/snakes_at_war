@@ -7,6 +7,8 @@ export abstract class Actor extends Container {
     constructor(overseer: Overseer) {
         super();
         this.overseer = overseer;
+
+        this.onAdd(this.overseer.app.stage);
     }
 
     abstract update(delta: number): void;
