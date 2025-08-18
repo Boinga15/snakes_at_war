@@ -3,11 +3,16 @@ import { Application, Graphics } from "pixi.js";
 import { BaseLevel } from "../levels/baseLevel";
 import { MainGameLevel } from "../levels/mainGame";
 import { Actor } from "../actors/actor";
+import { Player } from "../objects/player";
+import { Widget } from "../widgets/widget";
+import { GameWidget } from "../widgets/gameWidget";
 
 export class Overseer {
     app: Application
     level: BaseLevel
     boundingBox: Graphics;
+
+    player: Player;
 
     keys: Record<string, boolean> = {};
 
@@ -19,7 +24,11 @@ export class Overseer {
         this.app = new Application();
         this.boundingBox = new Graphics().rect(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT).fill("#383838ff");
         this.app.stage.addChild(this.boundingBox);
+        
         this.level = new MainGameLevel(this);
+        this.player = new Player(this);
+
+        this.level.widgets.push(new GameWidget(this));
     }
 
     beginGame(): void {
@@ -83,6 +92,20 @@ export class Overseer {
         for (const actor of this.level.actors) {
             if (actor instanceof targetClass) {
                 return actor;
+            }
+        }
+
+        return undefined;
+    }
+
+    getWidgetsOfClass(targetClass: typeof Widget): Widget[] {
+        return this.level.widgets.filter((widget) => (widget instanceof targetClass));
+    }
+
+    getWidgetOfClass(targetClass: typeof Widget): Widget | undefined {
+        for (const widget of this.level.widgets) {
+            if (widget instanceof targetClass) {
+                return widget;
             }
         }
 

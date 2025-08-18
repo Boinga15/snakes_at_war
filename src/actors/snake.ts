@@ -1,7 +1,8 @@
 import { Graphics } from "pixi.js";
 import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
-import { MainGameLevel } from "../levels/mainGame";
+import { Weapon } from "../data/types";
+import { PlayerBullet } from "./bullets";
 
 export class Snake extends Actor {
     direction: string
@@ -12,6 +13,10 @@ export class Snake extends Actor {
     sizeAdjustment: number = 0
 
     snakeMoveTicker: number = 0.1;
+    nextShot: number = 0;
+
+    reloadTimer: number = 0;
+    isReloading: boolean = false;
 
     constructor(overseer: Overseer) {
         super(overseer);
@@ -24,6 +29,16 @@ export class Snake extends Actor {
     }
     
     update(delta: number): void {
+        // Update parts
+        for (const part of this.parts) {
+            part.update(delta);
+
+            if (part.degrading && this.sizeAdjustment > 0) {
+                part.degrading = false;
+                this.sizeAdjustment -= 1;
+            }
+        }
+
         // Input handling
         const keyInputs: {key: string, direction: string}[] = [
             {key: "KeyW", direction: "UP"},
@@ -54,6 +69,53 @@ export class Snake extends Actor {
             }
         }
 
+        // Weapon Data
+        const weaponData: {type: Weapon, fireDelay: 0.3, reloadTime: number, damage: number, projectileSpeed: number, pierce: number}[] = [
+            {type: "Pistol", fireDelay: 0.3, reloadTime: 1, damage: 1, projectileSpeed: 1500, pierce: 0}
+        ];
+
+        // Handle firing
+        this.nextShot -= delta;
+
+        if (this.overseer.keys["Space"] && this.nextShot <= 0 && !this.isReloading) {
+            const equippedWeaponIndex = this.overseer.player.weapons.indexOf(this.overseer.player.weapons.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!);
+
+            if (this.overseer.player.weapons[equippedWeaponIndex].ammo > 0) {
+                this.overseer.player.weapons[equippedWeaponIndex].ammo -= 1;
+
+                const angles: {direction: string, angle: number}[] = [
+                    {direction: "UP", angle: 270},
+                    {direction: "RIGHT", angle: 0},
+                    {direction: "DOWN", angle: 90},
+                    {direction: "LEFT", angle: 180}
+                ]
+
+                const obtainedWeapon: {type: Weapon, fireDelay: number, reloadTime: number, damage: number, projectileSpeed: number, pierce: number} = weaponData.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!;
+                this.nextShot = obtainedWeapon.fireDelay;
+            
+                const angle = angles.find((cAngle) => cAngle.direction == this.direction)!.angle;
+                this.overseer.level.addActor(new PlayerBullet(this.overseer, angle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce))
+            }
+        }
+
+        // Handle Reloading
+        this.reloadTimer -= delta;
+
+        if (this.reloadTimer <= 0 && this.isReloading) {
+            this.isReloading = false;
+
+            const equippedWeaponIndex = this.overseer.player.weapons.indexOf(this.overseer.player.weapons.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!);
+            this.overseer.player.weapons[equippedWeaponIndex].ammo = this.overseer.player.weapons[equippedWeaponIndex].maxAmmo;
+        }
+
+        if (this.overseer.keys["KeyR"] && this.reloadTimer <= 0) {
+            const equippedWeaponIndex = this.overseer.player.weapons.indexOf(this.overseer.player.weapons.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!);
+            const obtainedWeapon: {type: Weapon, reloadTime: number, damage: number, projectileSpeed: number, pierce: number} = weaponData.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!;
+            this.isReloading = true;
+            this.reloadTimer = obtainedWeapon.reloadTime * (1 - (0.1 * this.overseer.player.weapons[equippedWeaponIndex].upgrades.reloadSpeed));
+        }
+
+        // Start handling frame-by-frame movement.
         this.nextUpdate -= delta;
 
         if (this.nextUpdate > 0) {
@@ -111,13 +173,26 @@ export class Snake extends Actor {
         }
 
         // Check for game overs.
+        let degradingAway = false;
+
         for (const part of this.parts) {
+            if (degradingAway) {
+                part.degrading = true;
+            }
+
             if (part == this.parts[0]) {
                 continue;
             } else if (part.x == this.parts[0].x && part.y == this.parts[0].y) {
-                const levelRef = this.overseer.level as MainGameLevel
-                levelRef.causeGameOver();
+                // Start removing every part up to this one.
+                part.degrading = true;
+                degradingAway = true;
             }
+        }
+
+        // Check for degredation.
+        if (this.parts[this.parts.length - 1].degrading) {
+            this.parts[this.parts.length - 1].removePart();
+            this.parts.pop();
         }
     }
 }
@@ -125,11 +200,13 @@ export class Snake extends Actor {
 class SnakePart extends Actor {
     isHead: boolean
     graphics: Graphics
+    degrading: boolean
 
     constructor(overseer: Overseer, isHead: boolean, x: number, y: number) {
         super(overseer);
 
         this.isHead = isHead;
+        this.degrading = false;
 
         this.x = x;
         this.y = y
@@ -146,6 +223,22 @@ class SnakePart extends Actor {
     }
     
     update(delta: number): void {
-        
+        if (this.degrading) {
+            this.graphics.clear();
+            this.graphics.rect(0, 0, 20, 20),
+            this.graphics.fill("#ff0000ff");
+        } else if (!this.isHead) {
+            this.graphics.clear();
+            this.graphics.rect(0, 0, 20, 20),
+            this.graphics.fill("#00a116ff");
+        } else {
+            this.graphics.clear();
+            this.graphics.rect(0, 0, 20, 20),
+            this.graphics.fill("#00ff22ff");
+        }
+    }
+
+    removePart() {
+        this.onRemove(this.overseer.app.stage);
     }
 }

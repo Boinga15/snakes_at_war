@@ -1,0 +1,1 @@
+export type Weapon = "Pistol" | "Machine Gun" | "Rifle" | "Shotgun" | "Pulse Laser" | "Rocket Launcher"
