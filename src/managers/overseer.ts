@@ -7,6 +7,9 @@ import { Player } from "../objects/player";
 import { Widget } from "../widgets/widget";
 import { GameWidget } from "../widgets/gameWidget";
 
+// Used for get actors of class.
+type ActorConstructor<T extends Actor = Actor> = new (...args: any[]) => T;
+
 export class Overseer {
     app: Application
     level: BaseLevel
@@ -84,8 +87,8 @@ export class Overseer {
     }
 
     // Helper functions.
-    getActorsOfClass(targetClass: typeof Actor): Actor[] {
-        return this.level.actors.filter((actor) => (actor instanceof targetClass));
+    getActorsOfClass<T extends Actor>(targetClass: ActorConstructor<T>): T[] {
+        return this.level.actors.filter((actor): actor is T => (actor instanceof targetClass));
     }
 
     getActorOfClass(targetClass: typeof Actor): Actor | undefined {
@@ -110,5 +113,22 @@ export class Overseer {
         }
 
         return undefined;
+    }
+
+    getPointCollision(rect: {x: number, y: number, xSize: number, ySize: number}, point: {x: number, y: number}): boolean {
+        const difference = {
+            x: point.x - rect.x,
+            y: point.y - rect.y
+        };
+
+        if (difference.x < 0 || difference.y < 0) {
+            return false;
+        }
+
+        return (difference.x <= rect.xSize && difference.y <= rect.ySize);
+    }
+
+    getRectCollision(rect1: {x: number, y: number, xSize: number, ySize: number}, rect2: {x: number, y: number, xSize: number, ySize: number}): boolean {
+        return (rect1.x + rect1.xSize > rect2.x && rect1.x < rect2.x + rect2.xSize && rect1.y + rect1.ySize > rect2.y && rect1.y < rect2.y + rect2.ySize);
     }
 }

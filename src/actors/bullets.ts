@@ -1,18 +1,23 @@
 import { Graphics } from "pixi.js";
 import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
+import { BaseEnemy } from "./enemies";
 
 abstract class Bullet extends Actor {
     xSpeed: number
     ySpeed: number
+    bulletAngle: number
     damage: number
     pierceLeft: number
+    hitEnemies: BaseEnemy[] = []
 
     constructor(overseer: Overseer, angle: number, speed: number, x: number, y: number, damage: number, pierceLeft: number) {
         super(overseer);
 
         this.xSpeed = speed * Math.cos(angle * Math.PI / 180);
         this.ySpeed = speed * Math.sin(angle * Math.PI / 180);
+
+        this.bulletAngle = angle;
 
         this.x = x;
         this.y = y;
@@ -26,17 +31,55 @@ abstract class Bullet extends Actor {
         this.y += this.ySpeed * delta;
 
         if (this.x > 2000 || this.x < -1000 || this.y > 2000 || this.y < -1000) {
-            console.log("TRASH IT")
             this.overseer.level.removeActor(this);
         }
     }
 }
 
 export class PlayerBullet extends Bullet {
-    constructor(overseer: Overseer, angle: number, speed: number, x: number, y: number, size: number, colour: string, damage: number, pierceLeft: number) {
+    size: number
+    knockback: number
+
+    constructor(overseer: Overseer, angle: number, speed: number, x: number, y: number, size: number, colour: string, damage: number, pierceLeft: number, knockback: number) {
         super(overseer, angle, speed, x, y, damage, pierceLeft);
+
+        this.knockback = knockback
 
         const graphics = new Graphics().rect(0, 0, size, size).fill(colour);
         this.addChild(graphics);
+
+        this.size = size;
+    }
+
+    update(delta: number) {
+        // Check for enemy collisions
+        let movementUpdate = 0;
+        let totalMovementUpdates = 10;
+
+        while (movementUpdate < totalMovementUpdates) {
+            this.x += this.xSpeed * delta / totalMovementUpdates;
+            this.y += this.ySpeed * delta / totalMovementUpdates;
+
+            movementUpdate++;
+
+            const enemyList: BaseEnemy[] = this.overseer.getActorsOfClass(BaseEnemy);
+
+            for (const enemy of enemyList) {
+                if (!this.hitEnemies.includes(enemy) && this.overseer.getRectCollision({x: this.x, y: this.y, xSize: this.size, ySize: this.size}, {x: enemy.x, y: enemy.y, xSize: enemy.size, ySize: enemy.size})) {
+                    this.hitEnemies.push(enemy);
+                    enemy.takeDamage(this.damage, this.knockback, Math.PI * this.bulletAngle / 180);
+                    this.pierceLeft -= 1;
+
+                    if (this.pierceLeft < 0) {
+                        this.overseer.level.removeActor(this);
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (this.x > 2000 || this.x < -1000 || this.y > 2000 || this.y < -1000) {
+            this.overseer.level.removeActor(this);
+        }
     }
 }

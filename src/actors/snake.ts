@@ -69,9 +69,34 @@ export class Snake extends Actor {
             }
         }
 
+        // Weapon Switching
+        const weaponKeyInputs: {key: string, weapon: Weapon}[] = [
+            {key: "Digit1", weapon: "Pistol"},
+            {key: "Digit2", weapon: "Machine Gun"},
+            {key: "Digit3", weapon: "Rifle"},
+            {key: "Digit4", weapon: "Shotgun"},
+            {key: "Digit5", weapon: "Pulse Laser"},
+            {key: "Digit6", weapon: "Rocket Launcher"}
+        ]
+
+        for (const weaponInput of weaponKeyInputs) {
+            if (this.overseer.keys[weaponInput.key] && !this.isReloading) {
+                const chosenWeapon = this.overseer.player.weapons.find((weapon) => weapon.type == weaponInput.weapon);
+
+                if (chosenWeapon!.unlocked) {
+                    this.overseer.player.equippedWeapon = chosenWeapon!.type;
+                }
+            }
+        }
+
         // Weapon Data
-        const weaponData: {type: Weapon, fireDelay: 0.3, reloadTime: number, damage: number, projectileSpeed: number, pierce: number}[] = [
-            {type: "Pistol", fireDelay: 0.3, reloadTime: 1, damage: 1, projectileSpeed: 1500, pierce: 0}
+        const weaponData: {type: Weapon, fireDelay: number, reloadTime: number, damage: number, projectileSpeed: number, pierce: number, knockback: number}[] = [
+            {type: "Pistol", fireDelay: 0.3, reloadTime: 1, damage: 1, projectileSpeed: 1500, pierce: 0, knockback: 500},
+            {type: "Machine Gun", fireDelay: 0.1, reloadTime: 1.5, damage: 0.6, projectileSpeed: 1500, pierce: 0, knockback: 200},
+            {type: "Rifle", fireDelay: 0.6, reloadTime: 1.8, damage: 2.2, projectileSpeed: 1500, pierce: 5, knockback: 900},
+            {type: "Shotgun", fireDelay: 0.45, reloadTime: 1.6, damage: 1.2, projectileSpeed: 1500, pierce: 1, knockback: 600},
+            {type: "Pulse Laser", fireDelay: 0.02, reloadTime: 2, damage: 0.3, projectileSpeed: 1800, pierce: 2, knockback: 80},
+            {type: "Rocket Launcher", fireDelay: 0.5, reloadTime: 3, damage: 3, projectileSpeed: 1250, pierce: 0, knockback: 1000}
         ];
 
         // Handle firing
@@ -90,11 +115,20 @@ export class Snake extends Actor {
                     {direction: "LEFT", angle: 180}
                 ]
 
-                const obtainedWeapon: {type: Weapon, fireDelay: number, reloadTime: number, damage: number, projectileSpeed: number, pierce: number} = weaponData.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!;
+                const obtainedWeapon: {type: Weapon, fireDelay: number, reloadTime: number, damage: number, projectileSpeed: number, pierce: number, knockback: number} = weaponData.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!;
                 this.nextShot = obtainedWeapon.fireDelay;
             
                 const angle = angles.find((cAngle) => cAngle.direction == this.direction)!.angle;
-                this.overseer.level.addActor(new PlayerBullet(this.overseer, angle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce))
+                this.overseer.level.addActor(new PlayerBullet(this.overseer, angle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce, obtainedWeapon.knockback))
+
+                // Shotgun Behaviour
+                if (obtainedWeapon.type == "Shotgun") {
+                    const angleAdjustment: number[] = [-20, -10, 10, 20];
+                    
+                    for (const aAngle of angleAdjustment) {
+                        this.overseer.level.addActor(new PlayerBullet(this.overseer, angle + aAngle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce, obtainedWeapon.knockback))
+                    }
+                }
             }
         }
 
@@ -105,14 +139,25 @@ export class Snake extends Actor {
             this.isReloading = false;
 
             const equippedWeaponIndex = this.overseer.player.weapons.indexOf(this.overseer.player.weapons.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!);
-            this.overseer.player.weapons[equippedWeaponIndex].ammo = this.overseer.player.weapons[equippedWeaponIndex].maxAmmo;
+
+            if (this.overseer.player.weapons[equippedWeaponIndex].reserveAmmo <= -1) { // Pistol reloading
+                this.overseer.player.weapons[equippedWeaponIndex].ammo = this.overseer.player.weapons[equippedWeaponIndex].maxAmmo;
+            } else if (this.overseer.player.weapons[equippedWeaponIndex].maxAmmo - this.overseer.player.weapons[equippedWeaponIndex].ammo > this.overseer.player.weapons[equippedWeaponIndex].reserveAmmo) { // Reloading when you don't have enough ammo.
+                this.overseer.player.weapons[equippedWeaponIndex].ammo += this.overseer.player.weapons[equippedWeaponIndex].reserveAmmo;
+                this.overseer.player.weapons[equippedWeaponIndex].reserveAmmo = 0
+            } else { // Reloading when you have enough ammo.
+                this.overseer.player.weapons[equippedWeaponIndex].ammo += this.overseer.player.weapons[equippedWeaponIndex].reserveAmmo -= (this.overseer.player.weapons[equippedWeaponIndex].maxAmmo - this.overseer.player.weapons[equippedWeaponIndex].ammo);
+                this.overseer.player.weapons[equippedWeaponIndex].ammo = this.overseer.player.weapons[equippedWeaponIndex].maxAmmo;
+            }
         }
 
         if (this.overseer.keys["KeyR"] && this.reloadTimer <= 0) {
             const equippedWeaponIndex = this.overseer.player.weapons.indexOf(this.overseer.player.weapons.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!);
             const obtainedWeapon: {type: Weapon, reloadTime: number, damage: number, projectileSpeed: number, pierce: number} = weaponData.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!;
-            this.isReloading = true;
-            this.reloadTimer = obtainedWeapon.reloadTime * (1 - (0.1 * this.overseer.player.weapons[equippedWeaponIndex].upgrades.reloadSpeed));
+            if (this.overseer.player.weapons[equippedWeaponIndex].reserveAmmo != 0 && (this.overseer.player.weapons[equippedWeaponIndex].ammo != this.overseer.player.weapons[equippedWeaponIndex].maxAmmo)) {
+                this.isReloading = true;
+                this.reloadTimer = obtainedWeapon.reloadTime * (1 - (0.1 * this.overseer.player.weapons[equippedWeaponIndex].upgrades.reloadSpeed));
+            }
         }
 
         // Start handling frame-by-frame movement.
@@ -193,6 +238,20 @@ export class Snake extends Actor {
         if (this.parts[this.parts.length - 1].degrading) {
             this.parts[this.parts.length - 1].removePart();
             this.parts.pop();
+        }
+    }
+
+    takeDamage(damage: number) {
+        let currentIndex = this.parts.length - 1;
+        let damageLeft = damage;
+
+        while (currentIndex >= 0 && damageLeft > 0) {
+            if (!this.parts[currentIndex].degrading) {
+                damageLeft--;
+                this.parts[currentIndex].degrading = true;
+            }
+
+            currentIndex--;
         }
     }
 }
