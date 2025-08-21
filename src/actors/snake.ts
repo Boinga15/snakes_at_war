@@ -116,10 +116,11 @@ export class Snake extends Actor {
                 ]
 
                 const obtainedWeapon: {type: Weapon, fireDelay: number, reloadTime: number, damage: number, projectileSpeed: number, pierce: number, knockback: number} = weaponData.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!;
+                const weaponUpgrades = this.overseer.player.weapons[equippedWeaponIndex].upgrades;
                 this.nextShot = obtainedWeapon.fireDelay;
             
                 const angle = angles.find((cAngle) => cAngle.direction == this.direction)!.angle;
-                this.overseer.level.addActor(new PlayerBullet(this.overseer, angle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce, obtainedWeapon.knockback, (obtainedWeapon.type === "Rocket Launcher")))
+                this.overseer.level.addActor(new PlayerBullet(this.overseer, angle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage * (1 + (0.2 * weaponUpgrades.damage)), obtainedWeapon.pierce, obtainedWeapon.knockback * (1 + (0.2 * weaponUpgrades.knockback)), (obtainedWeapon.type === "Rocket Launcher")))
 
                 // Shotgun Behaviour
                 if (obtainedWeapon.type == "Shotgun") {

@@ -39,8 +39,6 @@ export class EnemyManager extends Actor {
             }
 
             if (spawnableEnemies.length > 0) {
-                console.log("SPAWN")
-                
                 let randomIndex = Math.floor(Math.random() * spawnableEnemies.length);
 
                 if (randomIndex >= spawnableEnemies.length) {

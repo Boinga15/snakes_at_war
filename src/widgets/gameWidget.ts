@@ -7,6 +7,7 @@ import { Player } from "../objects/player";
 export class GameWidget extends Widget {
     weaponText: Text
     reloadText: Text
+    goldText: Text
 
     snakeReference: Snake
     playerReference: Player
@@ -36,8 +37,20 @@ export class GameWidget extends Widget {
             y: 30
         });
 
+        this.goldText = new Text({
+            text: "",
+            style: {
+                fontFamily: "Arial",
+                fontSize: 18,
+                fill: "#f1e428ff"
+            },
+            x: 10,
+            y: 50
+        });
+
         this.addChild(this.weaponText);
         this.addChild(this.reloadText);
+        this.addChild(this.goldText);
 
         this.snakeReference = this.overseer.getActorOfClass(Snake) as Snake;
         this.playerReference = this.overseer.player;
@@ -49,6 +62,9 @@ export class GameWidget extends Widget {
         this.weaponText.text = obtainedWeapon.type + ": " + obtainedWeapon.ammo + " | " + obtainedWeapon.maxAmmo + " (" + (obtainedWeapon.reserveAmmo == -1 ? "INF" : obtainedWeapon.reserveAmmo + " | " + obtainedWeapon.maxReserveAmmo) + ")"
 
         // Update reload text.
-        this.reloadText.text = (this.snakeReference.isReloading ? "RELOADING (" + this.snakeReference.reloadTimer.toFixed(2) + ")" : "")
+        this.reloadText.text = (this.snakeReference.isReloading ? "RELOADING (" + this.snakeReference.reloadTimer.toFixed(2) + ")" : "");
+
+        // Update  gold text.
+        this.goldText.text = "Gold: " + this.playerReference.gold;
     }
 }

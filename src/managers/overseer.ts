@@ -91,7 +91,7 @@ export class Overseer {
         return this.level.actors.filter((actor): actor is T => (actor instanceof targetClass));
     }
 
-    getActorOfClass(targetClass: typeof Actor): Actor | undefined {
+    getActorOfClass<T extends Actor>(targetClass: ActorConstructor<T>): T | undefined {
         for (const actor of this.level.actors) {
             if (actor instanceof targetClass) {
                 return actor;
