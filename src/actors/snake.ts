@@ -119,14 +119,14 @@ export class Snake extends Actor {
                 this.nextShot = obtainedWeapon.fireDelay;
             
                 const angle = angles.find((cAngle) => cAngle.direction == this.direction)!.angle;
-                this.overseer.level.addActor(new PlayerBullet(this.overseer, angle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce, obtainedWeapon.knockback))
+                this.overseer.level.addActor(new PlayerBullet(this.overseer, angle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce, obtainedWeapon.knockback, (obtainedWeapon.type === "Rocket Launcher")))
 
                 // Shotgun Behaviour
                 if (obtainedWeapon.type == "Shotgun") {
                     const angleAdjustment: number[] = [-20, -10, 10, 20];
                     
                     for (const aAngle of angleAdjustment) {
-                        this.overseer.level.addActor(new PlayerBullet(this.overseer, angle + aAngle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce, obtainedWeapon.knockback))
+                        this.overseer.level.addActor(new PlayerBullet(this.overseer, angle + aAngle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage, obtainedWeapon.pierce, obtainedWeapon.knockback, false))
                     }
                 }
             }

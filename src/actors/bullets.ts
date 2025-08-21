@@ -2,6 +2,7 @@ import { Graphics } from "pixi.js";
 import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
 import { BaseEnemy } from "./enemies";
+import { Explosion } from "./explosion";
 
 abstract class Bullet extends Actor {
     xSpeed: number
@@ -39,11 +40,13 @@ abstract class Bullet extends Actor {
 export class PlayerBullet extends Bullet {
     size: number
     knockback: number
+    isRocket: boolean
 
-    constructor(overseer: Overseer, angle: number, speed: number, x: number, y: number, size: number, colour: string, damage: number, pierceLeft: number, knockback: number) {
+    constructor(overseer: Overseer, angle: number, speed: number, x: number, y: number, size: number, colour: string, damage: number, pierceLeft: number, knockback: number, isRocket: boolean) {
         super(overseer, angle, speed, x, y, damage, pierceLeft);
 
         this.knockback = knockback
+        this.isRocket = isRocket
 
         const graphics = new Graphics().rect(0, 0, size, size).fill(colour);
         this.addChild(graphics);
@@ -71,6 +74,10 @@ export class PlayerBullet extends Bullet {
                     this.pierceLeft -= 1;
 
                     if (this.pierceLeft < 0) {
+                        if (this.isRocket) {
+                            this.overseer.level.addActor(new Explosion(this.overseer, this.x + (this.size / 2), this.y + (this.size / 2), 200, 400, this.damage * 5, 2200, "#ffc400ff", true));
+                        }
+
                         this.overseer.level.removeActor(this);
                         return;
                     }

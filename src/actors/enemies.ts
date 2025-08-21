@@ -64,9 +64,9 @@ export class BaseEnemy extends Actor {
 
             if (diffX == 0) {
                 angle = (diffY >= 0 ? 0 : Math.PI);
+            } else {
+                angle = Math.atan(diffY / diffX);
             }
-            
-            angle = Math.atan(diffY / diffX);
 
             if (diffX <= 0) {
                 angle += Math.PI;
