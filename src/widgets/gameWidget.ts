@@ -20,7 +20,7 @@ export class GameWidget extends Widget {
             style: {
                 fontFamily: "Arial",
                 fontSize: 18,
-                fill: "#d8d8d8ff"
+                fill: "#ffffffff"
             },
             x: 10,
             y: 10
@@ -57,6 +57,8 @@ export class GameWidget extends Widget {
     }
 
     update(delta: number) {
+        super.update(delta);
+
         // Update weapon text.
         const obtainedWeapon = this.playerReference.weapons.find((weapon) => weapon.type == this.playerReference.equippedWeapon)!
         this.weaponText.text = obtainedWeapon.type + ": " + obtainedWeapon.ammo + " | " + obtainedWeapon.maxAmmo + " (" + (obtainedWeapon.reserveAmmo == -1 ? "INF" : obtainedWeapon.reserveAmmo + " | " + obtainedWeapon.maxReserveAmmo) + ")"

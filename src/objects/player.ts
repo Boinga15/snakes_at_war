@@ -13,11 +13,11 @@ export class Player extends Object {
 
         this.weapons = [
             { type: "Pistol", ammo: 10, maxAmmo: 10, reserveAmmo: -1, maxReserveAmmo: -1, unlocked: true, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
-            { type: "Machine Gun", ammo: 30, maxAmmo: 30, reserveAmmo: 300, maxReserveAmmo: 300, unlocked: true, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
-            { type: "Rifle", ammo: 5, maxAmmo: 5, reserveAmmo: 50, maxReserveAmmo: 50, unlocked: true, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
-            { type: "Shotgun", ammo: 6, maxAmmo: 6, reserveAmmo: 60, maxReserveAmmo: 60, unlocked: true, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
-            { type: "Pulse Laser", ammo: 50, maxAmmo: 50, reserveAmmo: 500, maxReserveAmmo: 500, unlocked: true, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
-            { type: "Rocket Launcher", ammo: 1, maxAmmo: 1, reserveAmmo: 10, maxReserveAmmo: 10, unlocked: true, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
+            { type: "Machine Gun", ammo: 30, maxAmmo: 30, reserveAmmo: 10, maxReserveAmmo: 300, unlocked: false, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
+            { type: "Rifle", ammo: 5, maxAmmo: 5, reserveAmmo: 50, maxReserveAmmo: 50, unlocked: false, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
+            { type: "Shotgun", ammo: 6, maxAmmo: 6, reserveAmmo: 60, maxReserveAmmo: 60, unlocked: false, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
+            { type: "Pulse Laser", ammo: 50, maxAmmo: 50, reserveAmmo: 500, maxReserveAmmo: 500, unlocked: false, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
+            { type: "Rocket Launcher", ammo: 1, maxAmmo: 1, reserveAmmo: 10, maxReserveAmmo: 10, unlocked: false, upgrades: {damage: 0, reloadSpeed: 0, ammoCapacity: 0, knockback: 0} },
         ];
 
         this.generalUpgrades = {
@@ -26,6 +26,6 @@ export class Player extends Object {
         }
 
         this.equippedWeapon = "Pistol";
-        this.gold = 0;
+        this.gold = 15000;
     }
 }

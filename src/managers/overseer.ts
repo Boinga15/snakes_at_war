@@ -1,11 +1,12 @@
 // Responsible for overseeing the entire game process - What level is loaded, the state of the game, etc.
-import { Application, Graphics } from "pixi.js";
+import { Application, Graphics, Rectangle } from "pixi.js";
 import { BaseLevel } from "../levels/baseLevel";
 import { MainGameLevel } from "../levels/mainGame";
 import { Actor } from "../actors/actor";
 import { Player } from "../objects/player";
 import { Widget } from "../widgets/widget";
 import { GameWidget } from "../widgets/gameWidget";
+import { UpgradeAreaLevel } from "../levels/upgradeArea";
 
 // Used for get actors of class.
 type ActorConstructor<T extends Actor = Actor> = new (...args: any[]) => T;
@@ -14,6 +15,9 @@ export class Overseer {
     app: Application
     level: BaseLevel
     boundingBox: Graphics;
+
+    mousePos: {x: number, y: number}
+    mouseDown: boolean = false;
 
     player: Player;
 
@@ -27,16 +31,20 @@ export class Overseer {
         this.app = new Application();
         this.boundingBox = new Graphics().rect(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT).fill("#383838ff");
         this.app.stage.addChild(this.boundingBox);
-        
-        this.level = new MainGameLevel(this);
-        this.player = new Player(this);
 
-        this.level.widgets.push(new GameWidget(this));
+        this.mousePos = {x: 0, y: 0};
+
+        this.player = new Player(this);
+        
+        this.level = new UpgradeAreaLevel(this);
     }
 
     beginGame(): void {
         (async () => {
             await this.app.init({ background: "#181818ff", resizeTo: window });
+
+            this.app.stage.eventMode = "static";
+            this.app.stage.hitArea = new Rectangle(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT);
 
             document.getElementById("pixi-container")!.appendChild(this.app.canvas);
 
@@ -53,12 +61,28 @@ export class Overseer {
                 this.keys[e.code] = false;
             });
 
+            window.addEventListener("mousedown", (_e) => {
+                this.mouseDown = true;
+            });
+
+            // Clear the flag when the mouse button is released
+            window.addEventListener("mouseup", (_e) => {
+                this.mouseDown = false;
+            });
+
             // Prevent arrow keys from scrolling the page.
             window.addEventListener("keydown", (e) => {
                 if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
                     e.preventDefault();
                 }
             });
+
+            window.addEventListener("mousemove", (e) => {
+                this.mousePos = {
+                    x: (e.screenX - this.app.stage.x) / this.app.stage.scale.x,
+                    y: (e.screenY - this.app.stage.y) / this.app.stage.scale.y
+                }
+            })
 
 
             this.app.ticker.add((time) => {
@@ -84,6 +108,8 @@ export class Overseer {
         // Center the stage
         this.app.stage.x = (windowWidth - this.GAME_WIDTH * scale) / 2;
         this.app.stage.y = (windowHeight - this.GAME_HEIGHT * scale) / 2;
+
+        this.app.stage.hitArea = new Rectangle(0, 0, scale, scale);
     }
 
     // Helper functions.
