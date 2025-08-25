@@ -35,6 +35,7 @@ export class Food extends Actor {
 
         if (snakeRef.parts[0].x == this.x && snakeRef.parts[0].y == this.y) {
             sound.play("pickup", {volume: 0.2});
+            this.overseer.radialParticles({x: this.x + 10, y: this.y + 10}, 8, 5, "#ff0077ff", 1000, 0.2);
             
             this.x = Math.floor(Math.random() * 49) * 20;
             this.y = Math.floor(Math.random() * 49) * 20;

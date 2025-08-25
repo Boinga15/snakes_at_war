@@ -195,4 +195,18 @@ export class Overseer {
             this.level.addActor(newParticle);
         }
     }
+
+    radialParticles(point: {x: number, y: number}, count: number, size: number, colour: string, speed: number, lifetime: number) {
+        let cParticle = 0;
+
+        while(cParticle < count) {
+            cParticle++;
+
+            let newParticle = new Particle(this, (2 * Math.PI) * (cParticle / count), speed, colour, size, lifetime);
+            newParticle.x = point.x;
+            newParticle.y = point.y;
+
+            this.level.addActor(newParticle);
+        }
+    }
 }

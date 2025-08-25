@@ -4,6 +4,7 @@ import { Actor } from "./actor";
 import { BaseEnemy } from "./enemies";
 import { Explosion } from "./explosion";
 import { Snake } from "./snake";
+import { sound } from "@pixi/sound";
 
 abstract class Bullet extends Actor {
     xSpeed: number
@@ -128,13 +129,25 @@ export class EnemyBullet extends Bullet {
 
             for (const part of parts) {
                 if (this.overseer.getRectCollision({x: part.x, y: part.y, xSize: 20, ySize: 20}, {x: this.x, y: this.y, xSize: this.size, ySize: this.size})) {
+                    // Impact Particles
+                    const particleLocation: {x: number, y: number} = {
+                        x: this.x + ((part.x - this.x) / 2) + this.size,
+                        y: this.y + ((part.y - this.y) / 2) + this.size
+                    }
+
+                    this.overseer.createParticles(particleLocation, (this.penetrating ? 1 : 5), 5, "#ff4800ff", 1000, Math.PI + ((this.bulletAngle / 180) * Math.PI), 0.2);
+                    
                     if (part == parts[0]) {
+                        sound.play("playerHurt", {volume: 0.1});
                         this.overseer.getActorOfClass(Snake)!.takeDamage(this.damage);
                         this.overseer.level.removeActor(this);
                         return;
                     } else if (!this.penetrating) {
+                        sound.play("hit", {volume: 0.1});
                         this.overseer.level.removeActor(this);
                         return;
+                    } else {
+                        sound.play("hit", {volume: 0.02});
                     }
                 }
             }

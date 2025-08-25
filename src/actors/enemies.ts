@@ -110,6 +110,7 @@ export class BaseEnemy extends Actor {
             }
         } else {
             if (this.overseer.getRectCollision({x: this.x, y: this.y, xSize: this.size, ySize: this.size}, {x: this.snakeReference.parts[0].x, y: this.snakeReference.parts[0].y, xSize: 20, ySize: 20})) {
+                this.overseer.radialParticles({x: this.x + (this.size / 2), y: this.y + (this.size / 2)}, Math.floor(this.size / 2), 5, this.colourHigh, 1000, 0.2);
                 this.overseer.level.removeActor(this);
                 this.snakeReference.sizeAdjustment += this.consumeAmount;
                 
@@ -209,6 +210,7 @@ export class Gunner extends BaseEnemy {
             this.nextShot = 1;
 
             this.overseer.level.addActor(newProjectile);
+            sound.play("fire", {volume: 0.1});
         }
     }
 }
@@ -270,6 +272,7 @@ export class Blaster extends BaseEnemy {
             angle = 180 * (angle / Math.PI)
 
             const angleAdjustments = [-30, -15, 0, 15, 30];
+            sound.play("fire", {volume: 0.1});
 
             for (const aAngle of angleAdjustments) {
                 let newProjectile = new EnemyBullet(this.overseer, angle + aAngle, 200, this.x + 10, this.y + 10, 10, "#ff0000ff", 1, false)
@@ -336,6 +339,7 @@ export class Ace extends BaseEnemy {
             this.nextShot = 0.4;
 
             this.overseer.level.addActor(newProjectile);
+            sound.play("fire", {volume: 0.1});
         }
     }
 }
