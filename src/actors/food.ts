@@ -38,7 +38,7 @@ export class Food extends Actor {
 
             snakeRef.sizeAdjustment += 3;
 
-            this.playerReference.gold += 25 + (5 * this.playerReference.generalUpgrades.goldIncome);
+            this.playerReference.gold += 25 + (5 * this.playerReference.generalUpgrades.goldIncome + (5 * Math.floor(this.playerReference.round / 3)));
             const weaponList: Weapon[] = ["Machine Gun", "Pulse Laser", "Rifle", "Rocket Launcher", "Shotgun"];
 
             for (const weapon of weaponList) {

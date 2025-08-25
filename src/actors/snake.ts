@@ -1,4 +1,4 @@
-import { Graphics } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
 import { Weapon } from "../data/types";
@@ -161,6 +161,14 @@ export class Snake extends Actor {
             }
         }
 
+        // Advance Round
+        this.overseer.player.roundTimer -= delta;
+
+        if (this.overseer.player.roundTimer <= 0) {
+            this.overseer.player.openShop();
+            return;
+        }
+
         // Start handling frame-by-frame movement.
         this.nextUpdate -= delta;
 
@@ -171,7 +179,7 @@ export class Snake extends Actor {
         this.direction = this.heldDirection;
 
         // All code past this point is only handled when snake moves.
-        this.nextUpdate += this.snakeMoveTicker;
+        this.nextUpdate = this.snakeMoveTicker;
 
         // Movement script.
         let adjustment: number[] = [0, 0];
@@ -254,6 +262,14 @@ export class Snake extends Actor {
 
             currentIndex--;
         }
+    }
+
+    onRemove(stage: Container) {
+        for (const part of this.parts) {
+            part.onRemove(stage);
+        }
+
+        super.onRemove(stage)
     }
 }
 

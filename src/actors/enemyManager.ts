@@ -1,6 +1,6 @@
 import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
-import { BaseEnemy, Runner } from "./enemies";
+import { Ace, BaseEnemy, Blaster, Bulldozer, Charger, Gunner, Runner } from "./enemies";
 
 export class EnemyManager extends Actor {
     availableEnemies: {type: string, cost: number}[];
@@ -54,6 +54,26 @@ export class EnemyManager extends Actor {
                         newEnemy = new Runner(this.overseer, -100, -100);
                         break;
                     
+                    case "Gunner":
+                        newEnemy = new Gunner(this.overseer, -100, -100);
+                        break;
+
+                    case "Charger":
+                        newEnemy = new Charger(this.overseer, -100, -100);
+                        break;
+
+                    case "Blaster":
+                        newEnemy = new Blaster(this.overseer, -100, -100);
+                        break;
+
+                    case "Bulldozer":
+                        newEnemy = new Bulldozer(this.overseer, -100, -100);
+                        break;
+
+                    case "Ace":
+                        newEnemy = new Ace(this.overseer, -100, -100);
+                        break;
+
                     default:
                         newEnemy = new Runner(this.overseer, -100, -100);
                         break;

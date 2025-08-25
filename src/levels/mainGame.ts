@@ -10,10 +10,7 @@ export class MainGameLevel extends BaseLevel {
     }
 
     onLoad(_stage: Container): void {
-        this.actors.push(new Food(this.overseer));
-        this.actors.push(new Snake(this.overseer));
-
-        this.actors.push(new EnemyManager(this.overseer, [{type: "Runner", cost: 1}], 2, 0.2, 2, 4));
+        
     }
 
     causeGameOver(): void {

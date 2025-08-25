@@ -10,6 +10,7 @@ import { UpgradeAreaLevel } from "../levels/upgradeArea";
 
 // Used for get actors of class.
 type ActorConstructor<T extends Actor = Actor> = new (...args: any[]) => T;
+type LevelConstructor<T extends BaseLevel = BaseLevel> = new (...args: any[]) => T;
 
 export class Overseer {
     app: Application
@@ -35,8 +36,14 @@ export class Overseer {
         this.mousePos = {x: 0, y: 0};
 
         this.player = new Player(this);
-        
-        this.level = new UpgradeAreaLevel(this);
+        this.level = new MainGameLevel(this);
+
+        this.player.startRound();
+    }
+
+    loadLevel<T extends BaseLevel>(targetClass: LevelConstructor<T>): void {
+        this.level.onUnload(this.app.stage);
+        this.level = new targetClass(this);
     }
 
     beginGame(): void {

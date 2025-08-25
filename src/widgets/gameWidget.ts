@@ -8,6 +8,7 @@ export class GameWidget extends Widget {
     weaponText: Text
     reloadText: Text
     goldText: Text
+    roundText: Text
 
     snakeReference: Snake
     playerReference: Player
@@ -48,9 +49,21 @@ export class GameWidget extends Widget {
             y: 50
         });
 
+        this.roundText = new Text({
+            text: "",
+            style: {
+                fontFamily: "Arial",
+                fontSize: 18,
+                fill: "#00af35ff"
+            },
+            x: 10,
+            y: 70
+        });
+
         this.addChild(this.weaponText);
         this.addChild(this.reloadText);
         this.addChild(this.goldText);
+        this.addChild(this.roundText);
 
         this.snakeReference = this.overseer.getActorOfClass(Snake) as Snake;
         this.playerReference = this.overseer.player;
@@ -68,5 +81,8 @@ export class GameWidget extends Widget {
 
         // Update  gold text.
         this.goldText.text = "Gold: " + this.playerReference.gold;
+
+        // Update round text
+        this.roundText.text = "Round Time: " + Math.floor(this.playerReference.roundTimer * 10) / 10;
     }
 }

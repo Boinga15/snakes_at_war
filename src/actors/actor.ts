@@ -3,6 +3,7 @@ import { Overseer } from "../managers/overseer";
 
 export abstract class Actor extends Container {
     overseer: Overseer
+    unloaded: boolean = false
 
     constructor(overseer: Overseer) {
         super();
@@ -18,6 +19,7 @@ export abstract class Actor extends Container {
     }
 
     onRemove(stage: Container): void {
+        this.unloaded = true;
         stage.removeChild(this);
         this.destroy({ children: true });
     }

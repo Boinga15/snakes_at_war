@@ -18,6 +18,10 @@ export abstract class BaseLevel {
 
     update(delta: number): void {
         for (const actor of this.actors) {
+            if (actor.unloaded) {
+                continue;
+            }
+            
             actor.update(delta);
         }
 
@@ -27,7 +31,17 @@ export abstract class BaseLevel {
     };
 
     onLoad(_stage: Container): void {}
-    onUnload(_stage: Container): void {}
+
+    onUnload(_stage: Container): void {
+        for (const actor of this.actors) {
+            actor.onRemove(_stage);
+        }
+
+        for (const widget of this.widgets) {
+            widget.onDeconstruct();
+            _stage.removeChild(widget);
+        }
+    }
 
     addActor(actor: Actor): void {
         this.actors.push(actor);

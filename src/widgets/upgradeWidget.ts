@@ -32,7 +32,19 @@ export class UpgradeWidget extends Widget {
         for (const subWidget of this.subWidgets) {
             this.removeElement(subWidget);
         }
-        
+
+        this.addElement(new WidgetButton(this.overseer, 10, 960, {
+            label: "Next Round",
+            xSize: 350,
+            ySize: 30,
+            colour: "#b9b9b9ff",
+            hoverColour: "#6b6b6bff",
+            clickColour: "#464646ff"
+        }, () => {
+            this.overseer.level.onUnload(this.overseer.app.stage);
+            this.overseer.player.startRound();
+        }));
+
         const goldIncomeCost = 100 + (this.overseer.player.generalUpgrades.goldIncome * 125);
         this.addElement(new WidgetButton(this.overseer, 10, 40, {
             label: (this.overseer.player.generalUpgrades.goldIncome >= 5 ? "Upgrade Gold Income (5 / 5) [MAXED]" : `Upgrade Gold Income (${this.overseer.player.generalUpgrades.goldIncome} / 5) [${goldIncomeCost} gold]`),
