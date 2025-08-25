@@ -73,6 +73,14 @@ export class PlayerBullet extends Bullet {
                     enemy.takeDamage(this.damage, this.knockback, Math.PI * this.bulletAngle / 180);
                     this.pierceLeft -= 1;
 
+                    // Impact Particles
+                    const particleLocation: {x: number, y: number} = {
+                        x: this.x + ((enemy.x - this.x) / 2) + this.size,
+                        y: this.y + ((enemy.y - this.y) / 2) + this.size
+                    }
+
+                    this.overseer.createParticles(particleLocation, 5, 5, "#ffa600ff", 1000, Math.PI + ((this.bulletAngle / 180) * Math.PI), 0.2);
+
                     if (this.pierceLeft < 0) {
                         if (this.isRocket) {
                             this.overseer.level.addActor(new Explosion(this.overseer, this.x + (this.size / 2), this.y + (this.size / 2), 200, 400, this.damage * 5, 2200, "#ffc400ff", true));

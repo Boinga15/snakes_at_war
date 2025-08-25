@@ -127,6 +127,8 @@ export class Snake extends Actor {
                 const angle = angles.find((cAngle) => cAngle.direction == this.direction)!.angle;
                 this.overseer.level.addActor(new PlayerBullet(this.overseer, angle, obtainedWeapon.projectileSpeed, this.parts[0].x, this.parts[0].y, 20, "#fbff00ff", obtainedWeapon.damage * (1 + (0.2 * weaponUpgrades.damage)), obtainedWeapon.pierce, obtainedWeapon.knockback * (1 + (0.2 * weaponUpgrades.knockback)), (obtainedWeapon.type === "Rocket Launcher")))
 
+                this.overseer.createParticles({x: this.parts[0].x + 10, y: this.parts[0].y + 10}, 5, 5, "#fbff00ff", 1000, (angle / 180) * Math.PI, 0.2);
+
                 // Shotgun Behaviour
                 if (obtainedWeapon.type == "Shotgun") {
                     const angleAdjustment: number[] = [-20, -10, 10, 20];

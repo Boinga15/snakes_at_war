@@ -8,6 +8,7 @@ import { Widget } from "../widgets/widget";
 import { GameWidget } from "../widgets/gameWidget";
 import { UpgradeAreaLevel } from "../levels/upgradeArea";
 import { MainMenuLevel } from "../levels/mainMenuLevel";
+import { Particle } from "../actors/particle";
 
 // Used for get actors of class.
 type ActorConstructor<T extends Actor = Actor> = new (...args: any[]) => T;
@@ -123,6 +124,16 @@ export class Overseer {
         this.app.stage.y = (windowHeight - this.GAME_HEIGHT * scale) / 2;
 
         this.app.stage.hitArea = new Rectangle(0, 0, scale, scale);
+
+
+        // Create a mask the size of the logical game area
+        const mask = new Graphics().rect(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT).fill(0xffffff);
+
+        // Assign mask to stage
+        this.app.stage.mask = mask;
+
+        // Add mask to stage so Pixi can use it
+        this.app.stage.addChild(mask);
     }
 
     // Helper functions.
@@ -169,5 +180,19 @@ export class Overseer {
 
     getRectCollision(rect1: {x: number, y: number, xSize: number, ySize: number}, rect2: {x: number, y: number, xSize: number, ySize: number}): boolean {
         return (rect1.x + rect1.xSize > rect2.x && rect1.x < rect2.x + rect2.xSize && rect1.y + rect1.ySize > rect2.y && rect1.y < rect2.y + rect2.ySize);
+    }
+
+    createParticles(point: {x: number, y: number}, count: number, size: number, colour: string, speed: number, angle: number, lifetime: number) {
+        let cParticle = 0;
+
+        while(cParticle < count) {
+            cParticle++;
+
+            let newParticle = new Particle(this, angle + ((Math.random() * (Math.PI / 9)) - (Math.PI / 18)), (speed * 0.5 + (speed * Math.random())), colour, size, lifetime);
+            newParticle.x = point.x;
+            newParticle.y = point.y;
+
+            this.level.addActor(newParticle);
+        }
     }
 }
