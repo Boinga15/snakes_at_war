@@ -3,6 +3,7 @@ import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
 import { Weapon } from "../data/types";
 import { PlayerBullet } from "./bullets";
+import {GameOverLevel} from "../levels/gameOverLevel.ts"
 
 export class Snake extends Actor {
     direction: string
@@ -315,6 +316,10 @@ class SnakePart extends Actor {
     }
 
     removePart() {
-        this.onRemove(this.overseer.app.stage);
+        if (this.isHead) {
+            this.overseer.loadLevel(GameOverLevel);
+        } else {
+            this.onRemove(this.overseer.app.stage);
+        }
     }
 }

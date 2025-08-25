@@ -7,6 +7,7 @@ import { Player } from "../objects/player";
 import { Widget } from "../widgets/widget";
 import { GameWidget } from "../widgets/gameWidget";
 import { UpgradeAreaLevel } from "../levels/upgradeArea";
+import { MainMenuLevel } from "../levels/mainMenuLevel";
 
 // Used for get actors of class.
 type ActorConstructor<T extends Actor = Actor> = new (...args: any[]) => T;
@@ -36,14 +37,19 @@ export class Overseer {
         this.mousePos = {x: 0, y: 0};
 
         this.player = new Player(this);
-        this.level = new MainGameLevel(this);
-
-        this.player.startRound();
+        this.level = new MainMenuLevel(this);
     }
 
     loadLevel<T extends BaseLevel>(targetClass: LevelConstructor<T>): void {
         this.level.onUnload(this.app.stage);
         this.level = new targetClass(this);
+    }
+
+    startGame() {
+        this.player = new Player(this);
+        this.loadLevel(MainGameLevel);
+
+        this.player.startRound();
     }
 
     beginGame(): void {

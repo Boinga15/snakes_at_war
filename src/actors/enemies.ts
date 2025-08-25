@@ -52,6 +52,10 @@ export class BaseEnemy extends Actor {
     }
 
     update(delta: number, friction: number = 400, contactDamage: number = 3) {
+        if (this.unloaded) {
+            return;
+        }
+
         if (this.health > 0) {
             // Get Targets
             const targetX: number = this.snakeReference.parts[0].x;
@@ -159,7 +163,7 @@ export class Gunner extends BaseEnemy {
 
         this.nextShot -= delta;
 
-        if (this.nextShot <= 0) {
+        if (this.nextShot <= 0 && this.health > 0) {
             // Get Targets
             const targetX: number = this.snakeReference.parts[0].x;
             const targetY: number = this.snakeReference.parts[0].y;
@@ -218,7 +222,7 @@ export class Blaster extends BaseEnemy {
 
         this.nextShot -= delta;
 
-        if (this.nextShot <= 0) {
+        if (this.nextShot <= 0 && this.health > 0) {
             // Get Targets
             const targetX: number = this.snakeReference.parts[0].x;
             const targetY: number = this.snakeReference.parts[0].y;
@@ -286,7 +290,7 @@ export class Ace extends BaseEnemy {
 
         this.nextShot -= delta;
 
-        if (this.nextShot <= 0) {
+        if (this.nextShot <= 0 && this.health > 0) {
             // Get Targets
             const targetX: number = this.snakeReference.parts[0].x;
             const targetY: number = this.snakeReference.parts[0].y;
@@ -314,5 +318,16 @@ export class Ace extends BaseEnemy {
 
             this.overseer.level.addActor(newProjectile);
         }
+    }
+}
+
+
+export class Dummy extends BaseEnemy {
+    constructor(overseer: Overseer, x: number, y: number) {
+        super(overseer, x, y, 5, 80, 0, 20, "#770000ff", "#ff0000ff", 2);
+    }
+
+    update(delta: number) {
+        super.update(delta, 10, 0);
     }
 }

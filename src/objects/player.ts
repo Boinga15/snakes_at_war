@@ -86,8 +86,6 @@ export class Player extends Object {
         const minSpawnRate: number = 3**(-1 * (this.round / 20)) * 3;
         const maxSpawnRate: number = 3**(-1 * (this.round / 20)) * 4;
 
-        console.log(minSpawnRate)
-
         this.overseer.level.actors.push(new EnemyManager(this.overseer, availableEnemies, maxPoints, pointBuildRate, minSpawnRate, maxSpawnRate));
     }
 }
