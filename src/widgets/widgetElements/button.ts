@@ -1,6 +1,7 @@
 import { Graphics, Text } from "pixi.js";
 import { Overseer } from "../../managers/overseer";
 import { BaseElementWidget } from "./baseWidgetElement";
+import { sound } from "@pixi/sound";
 
 export class WidgetButton extends BaseElementWidget {
     label: string
@@ -89,6 +90,7 @@ export class WidgetButton extends BaseElementWidget {
                     this.onHold?.();
                 } else {
                     this.onClick?.();
+                    sound.play("click", {volume: 0.1});
                     this.beingClicked = true;
                 }
             } else {

@@ -2,6 +2,7 @@ import { Graphics } from "pixi.js";
 import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
 import { BaseEnemy } from "./enemies";
+import { sound } from "@pixi/sound";
 
 export class Explosion extends Actor {
     explosionRadius: number
@@ -29,6 +30,8 @@ export class Explosion extends Actor {
 
         this.explosionGraphic = new Graphics().circle(0, 0, this.explosionRadius).fill(explosionColour);
         this.addChild(this.explosionGraphic);
+
+        sound.play("explosion", {volume: 0.2});
     }
 
     update(delta: number) {

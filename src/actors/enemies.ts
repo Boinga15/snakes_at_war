@@ -3,6 +3,7 @@ import { Overseer } from "../managers/overseer";
 import { Actor } from "./actor";
 import { Snake } from "./snake";
 import { EnemyBullet } from "./bullets";
+import { sound } from "@pixi/sound";
 
 export class BaseEnemy extends Actor {
     health: number;
@@ -21,6 +22,7 @@ export class BaseEnemy extends Actor {
     knockbackVelocity: number[] = [0, 0]
 
     consumeAmount: number
+    deathSFXPlayed: boolean = false
 
     upperSquare: Graphics
     lowerSquare: Graphics
@@ -95,6 +97,10 @@ export class BaseEnemy extends Actor {
                     if (currentIndex == 0 && this.damageDelay <= 0) {
                         this.snakeReference.takeDamage(contactDamage);
                         this.damageDelay = 0.5;
+
+                        sound.play("playerHurt", {volume: 0.3});
+                    } else {
+                        sound.play("hit", {volume: 0.2});
                     }
                     
                     this.takeDamage(0, (currentIndex == 0 ? 1200 : 400), angle + Math.PI);
@@ -106,6 +112,8 @@ export class BaseEnemy extends Actor {
             if (this.overseer.getRectCollision({x: this.x, y: this.y, xSize: this.size, ySize: this.size}, {x: this.snakeReference.parts[0].x, y: this.snakeReference.parts[0].y, xSize: 20, ySize: 20})) {
                 this.overseer.level.removeActor(this);
                 this.snakeReference.sizeAdjustment += this.consumeAmount;
+                
+                sound.play("pickup", {volume: 0.1});
                 return
             }
 
@@ -136,6 +144,17 @@ export class BaseEnemy extends Actor {
 
         this.knockbackVelocity[0] += knockback * Math.cos(angle) * knockbackMultiplier;
         this.knockbackVelocity[1] += knockback * Math.sin(angle) * knockbackMultiplier;
+        
+        if (damage <= 0) {
+            return;
+        }
+
+        if (this.health <= 0 && !this.deathSFXPlayed) {
+            sound.play("kill", {volume: 0.2});
+            this.deathSFXPlayed = true;
+        } else if (!this.deathSFXPlayed) {
+            sound.play("hit", {volume: 0.2});
+        }
     }
 }
 

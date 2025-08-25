@@ -4,6 +4,7 @@ import { Actor } from "./actor";
 import { Snake } from "./snake";
 import { Player } from "../objects/player";
 import { Weapon } from "../data/types";
+import { sound } from "@pixi/sound";
 
 export class Food extends Actor {
     graphics: Graphics
@@ -33,6 +34,8 @@ export class Food extends Actor {
         }
 
         if (snakeRef.parts[0].x == this.x && snakeRef.parts[0].y == this.y) {
+            sound.play("pickup", {volume: 0.2});
+            
             this.x = Math.floor(Math.random() * 49) * 20;
             this.y = Math.floor(Math.random() * 49) * 20;
 

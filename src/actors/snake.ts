@@ -4,6 +4,7 @@ import { Actor } from "./actor";
 import { Weapon } from "../data/types";
 import { PlayerBullet } from "./bullets";
 import {GameOverLevel} from "../levels/gameOverLevel.ts"
+import { sound } from "@pixi/sound";
 
 export class Snake extends Actor {
     direction: string
@@ -104,9 +105,12 @@ export class Snake extends Actor {
         this.nextShot -= delta;
 
         if (this.overseer.keys["Space"] && this.nextShot <= 0 && !this.isReloading) {
+
             const equippedWeaponIndex = this.overseer.player.weapons.indexOf(this.overseer.player.weapons.find((weapon) => weapon.type == this.overseer.player.equippedWeapon)!);
 
             if (this.overseer.player.weapons[equippedWeaponIndex].ammo > 0) {
+                sound.play("fire", {volume: 0.2});
+
                 this.overseer.player.weapons[equippedWeaponIndex].ammo -= 1;
 
                 const angles: {direction: string, angle: number}[] = [
@@ -159,6 +163,7 @@ export class Snake extends Actor {
             if (this.overseer.player.weapons[equippedWeaponIndex].reserveAmmo != 0 && (this.overseer.player.weapons[equippedWeaponIndex].ammo != this.overseer.player.weapons[equippedWeaponIndex].maxAmmo)) {
                 this.isReloading = true;
                 this.reloadTimer = obtainedWeapon.reloadTime * (1 - (0.1 * this.overseer.player.weapons[equippedWeaponIndex].upgrades.reloadSpeed));
+                sound.play("reload", {volume: 0.2});
             }
         }
 
